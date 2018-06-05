@@ -1,11 +1,13 @@
 <?php
 
-use App\Artist;
 use Illuminate\Database\Seeder;
+use App\Artist;
+use Faker\Factory as Faker;
+
 
 class AliasesTableSeeder extends Seeder
 {
-	protected $Δ = 10;
+	protected $Δ = 100;
 
     /**
      * Run the database seeds.
@@ -16,17 +18,16 @@ class AliasesTableSeeder extends Seeder
     {
 	    $artists = [];
 	    $a = Artist::count();
+	    $faker = Faker::create('fr_FR');
 
-	    foreach (Artist::get(['unique_name', 'name']) as $i => $artist) {
+	    foreach (Artist::get(['unique_name']) as $i => $artist) {
 		    $artists['unique_name'][$i] = $artist->unique_name;
-		    $artists['name'][$i] = $artist->name;
 	    };
 
-	    // TODO Randomize aliases for a same artist
 	    for ($i=$a-$this->Δ;$i<$a;$i++) {
 		    DB::table('aliases')->insert([
-			    'artist_unique_name' => $artists['unique_name'][$i],
-			    'name' => $artists['name'][$i]
+			    'artist_unique_name' => $faker->randomElement($artists['unique_name']),
+			    'name' => $artists['unique_name'][$i]
 		    ]);
 	    }
 

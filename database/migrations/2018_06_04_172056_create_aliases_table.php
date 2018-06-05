@@ -15,7 +15,7 @@ class CreateAliasesTable extends Migration
     {
         Schema::create('aliases', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('artist_unique_name', 255)->unique();
+            $table->string('artist_unique_name', 255);
             $table->string('name', 255);
         });
 

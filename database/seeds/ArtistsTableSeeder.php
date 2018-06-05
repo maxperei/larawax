@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class ArtistsTableSeeder extends Seeder
 {
-	protected $Δ = 10;
+	protected $Δ = 100;
 
     /**
      * Run the database seeds.
@@ -19,7 +19,7 @@ class ArtistsTableSeeder extends Seeder
 
 	    for ($i=0;$i<$this->Δ;$i++) {
 		    DB::table('artists')->insert([
-			    'unique_name' => $faker->userName,
+			    'unique_name' => $faker->unique()->userName,
 			    'name' => $faker->domainWord . ' ' . $faker->emoji,
 			    'realname' => $faker->name,
 			    'profile' => $faker->realText()
