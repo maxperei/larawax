@@ -15,12 +15,16 @@ class CreateAliasesTable extends Migration
     {
         Schema::create('aliases', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('artist_unique_name', 255)->unique();
+            $table->string('artist_unique_name', 255);
             $table->string('name', 255);
         });
 
         Schema::table('aliases', function (Blueprint $table) {
-        	$table->foreign('artist_unique_name')->references('unique_name')->on('artists');
+        	$table->foreign('artist_unique_name')
+	              ->references('unique_name')
+	              ->on('artists')
+                  ->onDelete('cascade')
+	        ;
         });
     }
 
