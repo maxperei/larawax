@@ -1,12 +1,9 @@
 <?php
 
-use App\Artist;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-	public $Δ = 10;
-
     /**
      * Run the database seeds.
      *

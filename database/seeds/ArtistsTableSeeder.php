@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 
 class ArtistsTableSeeder extends Seeder
 {
+	protected $Δ = 10;
+
     /**
      * Run the database seeds.
      *
@@ -13,10 +15,9 @@ class ArtistsTableSeeder extends Seeder
      */
     public function run()
     {
-    	$dbseeder = new DatabaseSeeder; $Δ = $dbseeder->Δ;
 	    $faker = Faker::create('fr_FR');
 
-	    for ($i=0;$i<$Δ;$i++) {
+	    for ($i=0;$i<$this->Δ;$i++) {
 		    DB::table('artists')->insert([
 			    'unique_name' => $faker->userName,
 			    'name' => $faker->domainWord . ' ' . $faker->emoji,
