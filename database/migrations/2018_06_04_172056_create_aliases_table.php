@@ -20,7 +20,11 @@ class CreateAliasesTable extends Migration
         });
 
         Schema::table('aliases', function (Blueprint $table) {
-        	$table->foreign('artist_unique_name')->references('unique_name')->on('artists');
+        	$table->foreign('artist_unique_name')
+	              ->references('unique_name')
+	              ->on('artists')
+                  ->onDelete('cascade')
+	        ;
         });
     }
 
