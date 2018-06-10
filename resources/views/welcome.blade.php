@@ -79,8 +79,17 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    {{ $name }}
+                    {!! $name !!}
+                    <form action="/" method="POST">
+                        {{ csrf_field() }}
+                        <input type="text" name="search" id="search">
+                        <input type="submit" value="Go">
+                    </form>
                 </div>
+
+                @if(isset($output))
+                    {{ $output }}
+                @endif
 
                 <div class="links">
                     <a href="https://laravel.com/docs">Documentation</a>
