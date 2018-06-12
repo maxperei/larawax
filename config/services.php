@@ -35,4 +35,11 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+	'discogs' => [
+		'headers' => ['User-Agent' => env('DISCOGS_USER_AGENT')],
+		'consumer_key' => env('DISCOGS_KEY'),
+		'consumer_secret' => env('DISCOGS_SECRET'),
+		'redirect' => env('DISCOGS_REDIRECT'),
+	]
+
 ];
