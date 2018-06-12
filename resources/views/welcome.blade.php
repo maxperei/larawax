@@ -76,7 +76,6 @@
                     @endif
                 </div>
             @endif
-
             <div class="content">
                 <div class="title m-b-md">
                     {!! $name !!}
@@ -87,9 +86,14 @@
                     </form>
                 </div>
 
-                @if(isset($output))
-                    {{ $output }}
+                <ul>
+                @if(isset($response))
+                    @foreach($response['results'] as $res)
+                        <li style="list-style: none;">{{ $res['title'] }}</li>
+                        {{--<img src="{{ $res['cover_image'] }}" alt="" />--}}
+                    @endforeach
                 @endif
+                </ul>
 
                 <div class="links">
                     <a href="https://laravel.com/docs">Documentation</a>
