@@ -65,6 +65,11 @@
         </style>
     </head>
     <body>
+        @if (session('message'))
+            <div class="alert alert-error">
+                {{ session('message') }}
+            </div>
+        @endif
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
@@ -90,7 +95,7 @@
                 @if(isset($response))
                     @foreach($response['results'] as $res)
                         <li style="list-style: none;">{{ $res['title'] }}</li>
-                        {{--<img src="{{ $res['cover_image'] }}" alt="" />--}}
+                        <img src="{{ $res['cover_image'] }}" alt="" />
                     @endforeach
                 @endif
                 </ul>
