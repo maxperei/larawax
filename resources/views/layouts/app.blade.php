@@ -35,7 +35,7 @@
 
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
-                    <ul class="nav navbar-nav">
+                    <ul class="nav navbar-nav hidden-xs">
                         &nbsp;
                     </ul>
 
@@ -52,6 +52,9 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="{{ route('collection') }}">Collection</a>
+                                    </li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
