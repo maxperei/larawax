@@ -19,6 +19,8 @@ Route::post('/', 'SearchController@search');
 
 Route::get('/id', 'DiscogsController@identity');
 
+Route::get('/col', 'DiscogsController@collection')->name('collection');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

@@ -88,6 +88,21 @@ class DiscogsController extends Controller
 	    return view('identity', compact('response'));
     }
 
+	public function collection(Session $storage)
+	{
+		if (!auth()->check()) {
+			return redirect('login');
+		}
+
+		$client = $this->isAuth($storage);
+		$response = $client->getCollectionItemsByFolder([
+			'folder_id' => 0,
+			'username' => auth()->user()->name
+		]);
+
+		return view('welcome', compact('response'));
+	}
+
 	public function isAuth(Session $storage)
     {
 	    if ($storage->hasAccessToken($this->serviceName)) {
