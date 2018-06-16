@@ -22,7 +22,7 @@ class DiscogsController extends Controller
 	    /** @var $discogsOAuth DiscogsOauth */
 	    $discogsOAuth = $serviceFactory->createService($this->serviceName, $credentials, $storage);
 
-	    if (isset($_GET['oauth_token'])) {
+	    if (isset($_GET['oauth_token']) && $storage->hasAccessToken($this->serviceName)) {
 		    $token = $storage->retrieveAccessToken($this->serviceName);
 
 		    try {
@@ -60,6 +60,11 @@ class DiscogsController extends Controller
 	    $search = request('search');
 	    session()->flash('searchValue', $search);
 
+	    if (!$this->isAuth($storage)) {
+	    	session()->flash('message', 'You must authenticate to access these resources');
+		    return view('welcome', compact('name'));
+	    }
+
 	    $client = $this->isAuth($storage);
 
 	    $response = $client->search([
@@ -83,10 +88,25 @@ class DiscogsController extends Controller
 	    return view('identity', compact('response'));
     }
 
+	public function collection(Session $storage)
+	{
+		if (!auth()->check()) {
+			return redirect('login');
+		}
+
+		$client = $this->isAuth($storage);
+		$response = $client->getCollectionItemsByFolder([
+			'folder_id' => 0,
+			'username' => auth()->user()->name
+		]);
+
+		return view('welcome', compact('response'));
+	}
+
 	public function isAuth(Session $storage)
     {
-	    if ($storage->hasAccessToken('DiscogsOAuth')) {
-		    $token = $storage->retrieveAccessToken('DiscogsOAuth');
+	    if ($storage->hasAccessToken($this->serviceName)) {
+		    $token = $storage->retrieveAccessToken($this->serviceName);
 
 		    $client = ClientFactory::factory([
 			    'defaults' => [
@@ -104,8 +124,7 @@ class DiscogsController extends Controller
 		    $client->getHttpClient()->getEmitter()->attach($oauth);
 
 		    return $client;
-	    } else {
-	    	return redirect('/')->with('message', 'You must authenticate to access these resources');
 	    }
+	    return false;
     }
 }
