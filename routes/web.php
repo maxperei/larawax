@@ -11,19 +11,15 @@
 |
 */
 
-Route::get('/', 'DiscogsController@search');
+Route::get('/', function () {
+	if (Auth::check()) return 'Welcome back, ' . Auth::user()->username;
+	return 'Hi guest. <a href="' . route('login') . '">Login with Discogs</a>';
+});
 
-Route::get('/discogs', 'DiscogsController@login');
+Route::get('login', 'Auth\AuthController@login')->name('login');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
-Route::post('/', 'SearchController@search');
-
-Route::get('/id', 'DiscogsController@identity');
-
-Route::get('/col', 'DiscogsController@collection')->name('collection');
-
-Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('home', 'HomeController@index')->name('home');
 
 Route::get('/users', function () {
 	$users = DB::table('users')->get();
