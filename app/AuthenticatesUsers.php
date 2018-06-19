@@ -86,7 +86,7 @@ class AuthenticatesUsers
 		if ($this->hasAccessToken) {
 			if (!empty($tokens) && isset($tokens['oauth_token']) && isset($tokens['oauth_token'])) {
 				$token = $this->storage->retrieveAccessToken($this->serviceName);
-				$accessToken = $this->discogsOAuth->requestAccessToken(
+				$this->discogsOAuth->requestAccessToken(
 					$tokens['oauth_token'],
 					$tokens['oauth_verifier'],
 					$token->getRequestTokenSecret()
@@ -156,9 +156,7 @@ class AuthenticatesUsers
 	{
 		/** @var User $user */
 		$user = $this->users->findByUsernameOrCreate($this->getDiscogsUser($client));
-
 		\Auth::login($user, true);
-
 		return $user;
 	}
 }
