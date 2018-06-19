@@ -20,6 +20,8 @@ Route::get('login', 'Auth\AuthController@login')->name('login');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::get('home', 'HomeController@index')->name('home');
+Route::get('search', 'HomeController@search')->name('search');
+Route::post('search', 'HomeController@find')->name('find');
 
 Route::get('/users', function () {
 	$users = DB::table('users')->get();
