@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
+use App\AuthenticatesUsers;
+use App\User;
+use OAuth\Common\Storage\Session;
 
 class HomeController extends Controller
 {
@@ -21,8 +24,11 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(AuthenticatesUsers $authUsers, Session $storage)
     {
-        return view('home');
+    	$client = $authUsers->getDiscogsClient($storage->retrieveAccessToken($authUsers->serviceName));
+    	$response = $client->getProfile(['username' => \Auth::user()->username]);
+    	$user = User::find(\Auth::id());
+        return view('home', compact('response', 'user'));
     }
 }
