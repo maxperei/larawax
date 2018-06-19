@@ -6,32 +6,32 @@ namespace App;
 use App\OAuth\DiscogsOAuth;
 use App\Repositories\UserRepository;
 use Discogs\ClientFactory;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use OAuth\Common\Consumer\Credentials;
 use OAuth\Common\Storage\Exception\TokenNotFoundException;
 use OAuth\Common\Storage\Session;
 use OAuth\ServiceFactory;
 
+/**
+ * Discogs API + OAuth1
+ * Register and authenticate a user
+ *
+ * w/ session storage | user repository
+ *
+ * Class AuthenticatesUsers
+ * @package App
+ */
 class AuthenticatesUsers
 {
 	public $serviceName = 'DiscogsOAuth';
 	/**
 	 * @var UserRepository
 	 */
-	private $users;
+	protected $users;
 	/**
 	 * @var Session
 	 */
-	private $storage;
-	/**
-	 * @var ServiceFactory
-	 */
-	private $serviceFactory;
-	/**
-	 * @var Credentials
-	 */
-	private $credentials;
+	public $storage;
 
 	/**
 	 * @var $discogsOAuth DiscogsOauth
@@ -41,7 +41,7 @@ class AuthenticatesUsers
 	/**
 	 * @var bool
 	 */
-	private $hasAccessToken;
+	public $hasAccessToken;
 
 	/**
 	 * AuthenticatesUsers constructor.
@@ -50,10 +50,8 @@ class AuthenticatesUsers
 	{
 		$this->users = $users;
 		$this->storage = $storage;
-		$this->credentials = $credentials;
-		$this->serviceFactory = $serviceFactory;
-		$this->serviceFactory->registerService($this->serviceName, 'App\OAuth\DiscogsOAuth');
-		$this->discogsOAuth = $this->serviceFactory->createService($this->serviceName, $this->credentials, $this->storage);
+		$serviceFactory->registerService($this->serviceName, 'App\OAuth\DiscogsOAuth');
+		$this->discogsOAuth = $serviceFactory->createService($this->serviceName, $credentials, $this->storage);
 		$this->hasAccessToken = $this->storage->hasAccessToken($this->serviceName);
 	}
 
@@ -62,18 +60,15 @@ class AuthenticatesUsers
 	 */
 	public function process($tokens, AuthenticatesUsersListener $listener)
 	{
-		if(empty($tokens)) return $this->getAuthorizationFirst();
-
-		$client = $this->getDiscogsClient($tokens, $listener);
-
-		/** @var User $user */
-		$user = $this->users->findByUsernameOrCreate($this->getDiscogsUser($client));
-
-		\Auth::login($user, true);
-
+		if (empty($tokens)) return $this->getAuthorizationFirst();
+		$client = $this->authorize($tokens);
+		$user = $this->signIn($client);
 		return $listener->userHasLoggedIn($user);
 	}
 
+	/**
+	 * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+	 */
 	private function getAuthorizationFirst ()
 	{
 		$token = $this->discogsOAuth->requestRequestToken();
@@ -81,32 +76,45 @@ class AuthenticatesUsers
 		return redirect($url);
 	}
 
-	public function getDiscogsClient($tokens)
+	/**
+	 * @param $tokens
+	 *
+	 * @return \GuzzleHttp\Command\Guzzle\GuzzleClient|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+	 */
+	public function authorize($tokens)
 	{
 		if ($this->hasAccessToken) {
-			$token = $this->storage->retrieveAccessToken($this->serviceName);
-
-			try {
-				$this->discogsOAuth->requestAccessToken(
+			if (!empty($tokens) && isset($tokens['oauth_token']) && isset($tokens['oauth_token'])) {
+				$token = $this->storage->retrieveAccessToken($this->serviceName);
+				$accessToken = $this->discogsOAuth->requestAccessToken(
 					$tokens['oauth_token'],
 					$tokens['oauth_verifier'],
 					$token->getRequestTokenSecret()
 				);
-			} catch (RequestException $e) {
-				return redirect('home')->with('status', 'Access token already requested!');
 			}
 
-			$isAuthorized = true;
 			try {
-				$token = $this->storage->retrieveAccessToken($this->serviceName);
+				$tokens = $this->storage->retrieveAccessToken($this->serviceName);
 			} catch (TokenNotFoundException $e) {
-				$isAuthorized = false;
-			}
-
-			if (!$isAuthorized) {
 				$this->getAuthorizationFirst();
 			}
 
+			return $this->getDiscogsClient($tokens);
+		}
+
+		return $this->getAuthorizationFirst();
+	}
+
+	/**
+	 * TODO: Dependency injection via service
+	 *
+	 * @param $isAuthorized
+	 *
+	 * @return \GuzzleHttp\Command\Guzzle\GuzzleClient
+	 */
+	public function getDiscogsClient($isAuthorized)
+	{
+		if ($isAuthorized) {
 			$client = ClientFactory::factory([
 				'defaults' => [
 					'headers' => ['User-Agent' => config('services.discogs.headers.User-Agent')],
@@ -114,20 +122,23 @@ class AuthenticatesUsers
 			]);
 
 			$oauth = new Oauth1([
-				'consumer_key'    => config('services.discogs.consumer_key'),
-				'consumer_secret' => config('services.discogs.consumer_secret'),
-				'token'           => $token->getRequestToken(),
-				'token_secret'    => $token->getRequestTokenSecret()
+			  'consumer_key' => config('services.discogs.consumer_key'),
+			  'consumer_secret' => config('services.discogs.consumer_secret'),
+			  'token' => $isAuthorized->getRequestToken(),
+			  'token_secret' => $isAuthorized->getRequestTokenSecret()
 			]);
 
 			$client->getHttpClient()->getEmitter()->attach($oauth);
 
 			return $client;
 		}
-
-		return $this->getAuthorizationFirst();
 	}
 
+	/**
+	 * @param $client
+	 *
+	 * @return mixed
+	 */
 	public function getDiscogsUser($client)
 	{
 		$identity = $client->getOAuthIdentity();
@@ -136,5 +147,18 @@ class AuthenticatesUsers
 		]);
 	}
 
+	/**
+	 * @param $client
+	 *
+	 * @return User
+	 */
+	public function signIn($client)
+	{
+		/** @var User $user */
+		$user = $this->users->findByUsernameOrCreate($this->getDiscogsUser($client));
 
+		\Auth::login($user, true);
+
+		return $user;
+	}
 }

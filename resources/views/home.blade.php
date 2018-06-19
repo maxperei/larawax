@@ -7,20 +7,24 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard</div>
 
-                <div class="panel-body">
+                <div class="panel-body text-center">
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
                         </div>
                     @endif
-
+                    @if (isset($user))
+                        <pre>Database</pre>
+                        <h1>{{ $user->name  }}</h1>
+                        <img class="img-rounded" src="{{ $user['avatar'] }}" alt="" width="250">
+                        <p>{{ $user->location }}</p>
+                    @endif
+                    <hr>
                     @if (isset($response))
-                        @foreach ($response['releases'] as $key => $rel)
-                            {{--<pre>{{ var_dump($rel['basic_information']) }}</pre>--}}
-                            <img src="{{$rel['basic_information']['cover_image']}}" width="250" height="250" alt="">
-                            <p>{{$rel['basic_information']['artists'][0]['name']}} - {{$rel['basic_information']['title']}}</p>
-                            <hr>
-                        @endforeach
+                        <pre>API Client</pre>
+                        <h1>{{ $response['name'] }}</h1>
+                        <img class="img-rounded" src="{{ $response['avatar_url'] }}" alt="" width="250">
+                        <p>{{ $response['location'] }}</p>
                     @else
                         You're logged in
                     @endif
