@@ -182,6 +182,7 @@ return [
 	     * Custom Service Providers...
 	     */
 	    Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+	    Barryvdh\Debugbar\ServiceProvider::class,
 	    Artdarek\OAuth\OAuthServiceProvider::class,
     ],
 
@@ -232,6 +233,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'OAuth' => Artdarek\OAuth\Facade\OAuth::class,
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 
 ];
