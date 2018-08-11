@@ -27,10 +27,10 @@ class AuthController extends Controller implements AuthenticatesUsersListener
 				'oauth_token' => $request->input('oauth_token'),
 				'oauth_verifier' => $request->input('oauth_verifier')
 			];
-		} elseif ($authUsers->hasAccessToken) {
-			$tokens = (array) $storage->retrieveAccessToken($authUsers->serviceName);
-			$user = $authUsers->signIn($authUsers->authorize($tokens));
-			$this->userHasLoggedIn($user);
+		} elseif ($authUsers->hasAuthorizationState) {
+			$tokens = $storage->retrieveAccessToken($authUsers->serviceName);
+			$user = $authUsers->signIn($authUsers->getDiscogsClient($tokens));
+			return $this->userHasLoggedIn($user);
 		}
 
 		return $authUsers->process($tokens, $this);
