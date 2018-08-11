@@ -11,16 +11,7 @@
 |
 */
 
-use App\AuthenticatesUsers;
-use OAuth\Common\Storage\Session;
-
-Route::get('/', function (Session $storage, AuthenticatesUsers $authUsers) {
-	if ($storage->hasAccessToken('DiscogsOAuth')){
-		\Debugbar::info($storage->hasAuthorizationState('DiscogsOAuth'));
-		\Debugbar::info($storage->retrieveAccessToken('DiscogsOAuth')->getRequestToken());
-		\Debugbar::info($storage->retrieveAccessToken('DiscogsOAuth')->getRequestTokenSecret());
-	}
-	if ($storage->hasAuthorizationState('DiscogsOAuth')) \Debugbar::info($storage->retrieveAuthorizationState('DiscogsOAuth'));
+Route::get('/', function () {
 	if (Auth::check()) return 'Welcome back, ' . Auth::user()->username;
 	return 'Hi guest. <a href="' . route('login') . '">Login with Discogs</a>';
 });
